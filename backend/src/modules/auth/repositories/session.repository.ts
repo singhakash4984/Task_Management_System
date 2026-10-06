@@ -1,4 +1,4 @@
-import { session } from "../types/auth.type.js";
+import { session } from "../../../shared/types/auth.type.js";
 import { pool } from "../../../config/db.js";
 
 export const createSession = async (data: session) => {

@@ -1,5 +1,5 @@
 import argon2 from "argon2" 
-import { env } from "../../../config/env.js"
+import { env } from "../../config/env.js";
 import { AppError } from "../../shared/errors/AppError.js";
 import crypto from "node:crypto" ;
 

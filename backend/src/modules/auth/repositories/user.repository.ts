@@ -1,5 +1,5 @@
 import { pool } from "../../../config/db.js";
-import { session } from "../types/auth.type.js";
+// import { session } from "../../../shared/types/auth.type.js";
 
 export const createUser = async (
   email: string,

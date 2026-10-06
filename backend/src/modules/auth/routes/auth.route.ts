@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { registerSchema } from "../validation/register.schema.js";
-import { validation } from "../../../middleware/validation.middleware.js";
+import { validation } from "../../../shared/middleware/validation.middleware.js";
 import {
   loginController,
   logoutController,
@@ -8,7 +8,7 @@ import {
   registerController,
 } from "../controller/auth.controller.js";
 import { loginSchema } from "../validation/login.schema.js";
-import { authLimiter } from "../../../middleware/rateLimiter.middleware.js";
+import { authLimiter } from "../../../shared/middleware/rateLimiter.middleware.js";
 
 const authRouter = Router();
 

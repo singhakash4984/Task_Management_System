@@ -1,12 +1,12 @@
 import { isUniqueViolation } from "../../../helper/postgresError.js";
-import { AppError } from "../../shared/errors/AppError.js";
+import { AppError } from "../../../shared/errors/AppError.js";
 import {
   FAKE_HASH,
   generateRefreshToken,
   hashPassword,
   hashToken,
   verifyPassword,
-} from "../utils/crypto.js";
+} from "../../../shared/utils/crypto.js";
 import { RegisterInput } from "../validation/register.schema.js";
 import {
   createUser,
@@ -19,8 +19,8 @@ import {
 } from "../repositories/session.repository.js";
 import jwt from "jsonwebtoken";
 import { env } from "../../../config/env.js";
-import { User } from "../types/auth.type.js";
-import { meta } from "../types/auth.type.js";
+import { User } from "../../../shared/types/auth.type.js";
+import { meta } from "../../../shared/types/auth.type.js";
 import {
   findSessionByTokenHash,
   revokeSession,
