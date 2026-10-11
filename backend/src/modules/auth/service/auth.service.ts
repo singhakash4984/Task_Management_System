@@ -12,7 +12,7 @@ import {
   createUser,
   findByEmail,
   findUserById,
-} from "../repositories/user.repository.js";
+} from "../../user/repositories/user.repository.js";
 import {
   createSession,
   revokeAllSessionByUserId,

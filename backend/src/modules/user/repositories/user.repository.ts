@@ -27,16 +27,26 @@ export const findByEmail = async (email: string)=> {
 
   return result.rows[0] ?? null ;
 };
-export const findUserById = async (id: string)=> {
+export const findUserById = async(id: string)=> {
   const result = await pool.query(
     `SELECT 
     id, email,role,is_active
     FROM users 
-    WHERE email = $1 LIMIT 1`,
+    WHERE id = $1 LIMIT 1`,
     [id],
   );
 
   return result.rows[0] ?? null ;
 };
+
+export const deleteUserById = async(userId: string) =>{
+const result = await pool.query(`
+  DELETE FROM users WHERE id= $1
+  RETURNING id
+  `, [userId]) ;
+
+  return result.rows[0] ?? null ;
+}
+
 
 

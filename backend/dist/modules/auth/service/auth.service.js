@@ -1,9 +1,11 @@
 import { isUniqueViolation } from "../../../helper/postgresError.js";
-import { AppError } from "../../shared/errors/AppError.js";
-import { FAKE_HASH, generateRefreshToken, hashPassword, hashToken, verifyPassword, } from "../utils/crypto.js";
-import { createSession, createUser, findByEmail, } from "../repositories/user.repository.js";
+import { AppError } from "../../../shared/errors/AppError.js";
+import { FAKE_HASH, generateRefreshToken, hashPassword, hashToken, verifyPassword, } from "../../../shared/utils/crypto.js";
+import { createUser, findByEmail, findUserById, } from "../../user/repositories/user.repository.js";
+import { createSession, revokeAllSessionByUserId, } from "../repositories/session.repository.js";
 import jwt from "jsonwebtoken";
 import { env } from "../../../config/env.js";
+import { findSessionByTokenHash, revokeSession, } from "../repositories/session.repository.js";
 export const register = async (data) => {
     const { email, password } = data;
     const normalizedEmail = email.trim().toLowerCase();
@@ -54,4 +56,51 @@ export const login = async (email, password, meta) => {
         accessToken,
         refreshToken: rawRefreshToken,
     };
+};
+export const refresh = async (rawToken, meta) => {
+    const tokenHash = hashToken(rawToken);
+    const session = await findSessionByTokenHash(tokenHash);
+    if (!session ||
+        session.revoked_at ||
+        new Date(session.expires_at) < new Date()) {
+        throw new AppError("Invalid refresh token", 401);
+    }
+    await revokeSession(session.id);
+    const user = await findUserById(session.user_id);
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+    const payload = {
+        id: user.id,
+        role: user.role,
+    };
+    const newAccesstoken = jwt.sign(payload, env.auth.accessSecret, {
+        expiresIn: "15m",
+    });
+    const newRawToken = generateRefreshToken();
+    const newHash = hashToken(newRawToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await createSession({
+        userId: user.id,
+        tokenHash: newHash,
+        ip: meta.ip,
+        userAgent: meta.userAgent,
+        expiresAt,
+        rotatedFrom: session.id,
+    });
+    return {
+        accessToken: newAccesstoken,
+        refreshToken: newRawToken,
+    };
+};
+export const logout = async (refreshToken) => {
+    const tokenHash = hashToken(refreshToken);
+    const session = await findSessionByTokenHash(tokenHash);
+    if (!session) {
+        return;
+    }
+    if (session.revoked_at) {
+        await revokeAllSessionByUserId(session.user_id);
+    }
+    await revokeSession(session.id);
 };

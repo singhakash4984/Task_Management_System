@@ -30,3 +30,9 @@ ip: string ;
 userAgent?:string ;
 }
 
+export type AccessTokenPayload = {
+    id:string;
+    role: string;
+    iat: number;
+    exp: number;
+}
